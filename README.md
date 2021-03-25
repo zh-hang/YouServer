@@ -11,8 +11,14 @@ python3 -m venv venv
 
 ### 安装flask
 
-```python
+```shell
 pip install Flask
+```
+### 配置数据库
+
+```shell
+pip install sqlite3
+python3 init.py
 ```
 
 ### 运行
