@@ -18,7 +18,7 @@ pip install Flask
 
 ```shell
 pip install sqlite3
-python3 init.py
+python3 database_init.py
 ```
 
 ### 运行

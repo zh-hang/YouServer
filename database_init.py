@@ -1,6 +1,6 @@
 import sqlite3
 
-conn = sqlite3.connect('./scr/you.db')
+conn = sqlite3.connect('./instance/you.db')
 
 print("Opened database successfully")
 c = conn.cursor()
