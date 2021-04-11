@@ -1,7 +1,8 @@
 import sqlite3
+
 from . import db
 from flask_socketio import SocketIO, emit
-from flask import (Blueprint, flash, g, redirect, render_template, request, session, url_for,current_app)
+from flask import (Blueprint, flash, g, redirect, render_template, request, session, url_for, current_app)
 from werkzeug.security import (check_password_hash, generate_password_hash)
 
 chatroom_bp = Blueprint('chatroom', __name__, url_prefix='/chatroom')
@@ -16,6 +17,9 @@ class Chatroom:
     def getinfo(self):
         return {'id': self.id_int, 'name': self.name_string, 'people_number': self.people_number_int}
 
+    def __str__(self):
+        return 'id:' + str(self.id_int) + ' name:' + self.name_string + ' people_number:' + str(self.people_number_int)
+
 
 class ChatroomResource:
     def __enter__(self):
@@ -27,12 +31,15 @@ class ChatroomResource:
         else:
             print('everything fine')
 
-    def getChatroomLists(self):
-        chatroom_db = db.get_db()
-        chatroom_db_lists = chatroom_db.db.excute('''SELECT * from chatroom''').fetchone()
+    @staticmethod
+    def getChatroomLists():
+        chatroom_db = sqlite3.connect('./instance/you.db')
+        chatroom_db_lists = chatroom_db.execute(
+            'SELECT * FROM chatroom').fetchall()
+        print(chatroom_db_lists)
         chatroom_temp_lists = []
         for i in chatroom_db_lists:
-            chatroom_temp_lists.append(Chatroom(i['chatroom_id'], i['chatroom_name']))
+            chatroom_temp_lists.append(Chatroom(i[0], i[1]))
         chatroom_db.close()
         return chatroom_temp_lists
 
