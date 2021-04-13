@@ -58,3 +58,18 @@ def list_room():
     for item in chatroom_lists:
         res.append(item.getinfo())
     return str(res)
+
+
+@chatroom_bp.route('/room', methods={'GET'})
+def get_in_room():
+    chatroom_id_int = int(request.args.get('chatroom_id'))
+    is_in_bool = False
+    current_chatroom: Chatroom
+    for i in chatroom_lists:
+        if chatroom_id_int == i.id_int:
+            i.people_number_int += 1
+            current_chatroom = i
+            is_in_bool = True
+    if not is_in_bool:
+        return 'chatroom id wrong'
+    return 'get in chatroom ' + current_chatroom.name_string
