@@ -14,7 +14,7 @@ def create_app(test_config=None):
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'you.db'),
     )
-
+    print(app.config['DATABASE'])
     if test_config is None:
         app.config.from_pyfile('config.py', silent=True)
     else:
@@ -25,12 +25,13 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from . import auth
+    from . import auth, chatroom, db
 
     app.register_blueprint(auth.auth_bp)
+    app.register_blueprint(chatroom.chatroom_bp)
 
     @app.route('/')
     def init():
-        return redirect(url_for('auth'))
+        return 'hello world'
 
     return app
