@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"
+            integrity="sha384-LzhRnpGmQP+lOvWruF/lgkcqD+WDVt9fU3H4BWmwP5u5LTmkUGafMcpZKNObVMLU"
+            crossorigin="anonymous"></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io();
+        t = "welcome to chatroom"
+        $("#t").text(t);
+        socket.on('connect', function () {
+            socket.emit('join', {message: 'hello!',username: 'zhanghang',room_id_string: '0'}, function (res) {
+                console.log(res)
+            });
+        });
+        // socket.on('server_response', function (res) {
+        //     console.log(res.data)
+        // });
+
+        // socket.on('join', function (res) {
+        //     socket.emit('join', {'username': 'zhanghang', 'room': 'YOU'});
+        //     // socket.on('server', function (res) {
+        //     var t = res.data;
+        //     $("#t").text(t);
+        //     // });
+        // });
+        // socket.on('my_response', function(msg, cb) {
+        //     $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
+        //     if (cb)
+        //         cb();
+        // });
+    </script>
+</head>
+</html>
