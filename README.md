@@ -9,11 +9,12 @@ python3 -m venv venv
 . venv/bin/activate
 ```
 
-### 安装flask
+### 安装依赖
 
 ```shell
-pip install Flask
+pip install Flask flask-socketio
 ```
+
 ### 配置数据库
 
 ```shell
@@ -24,7 +25,7 @@ python3 database_init.py
 ### 运行
 
 ```shell
-export FLASK_APP=app.py
+export FLASK_APP=src
 flask run --host=0.0.0.0
 ```
 
