@@ -13,17 +13,17 @@ class Chatroom:
     def __init__(self, chatroom_id_int, chatroom_name_string):
         self.id_int = chatroom_id_int
         self.name_string = chatroom_name_string
-        self.people_number_int = 0
+        self.population_int = 0
 
     def getinfo(self):
-        return {'id': self.id_int, 'name': self.name_string, 'people_number': self.people_number_int}
+        return {'id': self.id_int, 'name': self.name_string, 'population': self.population_int}
 
     def __eq__(self, other_chatroom):
         return self.id_int == other_chatroom.id_int
 
     def __str__(self):
-        return '{"id":' + str(self.id_int) + ',"name":' + self.name_string + ',"people_number":' + str(
-            self.people_number_int) + '}'
+        return '{"id":' + str(self.id_int) + ',"name":' + self.name_string + ',"population":' + str(
+            self.population_int) + '}'
 
 
 class ChatroomResource:
@@ -61,9 +61,9 @@ def modify_chatroom_number(chatroom_id_int, is_in_bool):
     for i in chatroom_lists:
         if i.id_int == chatroom_id_int:
             if is_in_bool:
-                i.people_number_int += 1
+                i.population_int += 1
             else:
-                i.people_number_int -= 1
+                i.population_int -= 1
 
 
 @app_socket_io.on('connect')
@@ -124,7 +124,7 @@ def in_or_out_room():
     current_chatroom: Chatroom
     for i in chatroom_lists:
         if chatroom_id_int == i.id_int:
-            i.people_number_int += 1
+            i.population_int += 1
             current_chatroom = i
             is_in_bool = True
     if not is_in_bool:
