@@ -18,7 +18,6 @@ pip install Flask flask-socketio
 ### 配置数据库
 
 ```shell
-pip install sqlite3
 python3 database_init.py
 ```
 
