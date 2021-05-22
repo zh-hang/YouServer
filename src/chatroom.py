@@ -112,7 +112,7 @@ def list_room():
     res = []
     for item in chatroom_lists:
         res.append(item.getinfo())
-    return str(res)
+    return str({'rooms':res})
 
 
 @chatroom_bp.route('/room', methods={'GET'})
