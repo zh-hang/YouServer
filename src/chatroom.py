@@ -16,13 +16,13 @@ class Chatroom:
         self.population_int = 0
 
     def get_dict(self):
-        return {'id': self.id_int, 'name': self.name_string, 'population': self.population_int}
+        return {'name': self.name_string, 'population': self.population_int}
 
     def __eq__(self, other_chatroom):
         return self.id_int == other_chatroom.id_int
 
     def __str__(self):
-        return '{"id":' + str(self.id_int) + ',"name":' + self.name_string + ',"population":' + str(
+        return '{"name":' + self.name_string + ',"population":' + str(
             self.population_int) + '}'
 
 
@@ -56,10 +56,8 @@ try:
 except Exception as e:
     print(e)
 
-new_chatting=chatting.ChatRoomServer("test")
+# new_chatting=chatting.ChatRoomServer("test")
 
-thread = threading.Thread(target=new_chatting.run())
-thread.start()
 
 
 def modify_chatroom_number(chatroom_id_int, is_in_bool):
@@ -76,8 +74,8 @@ def modify_chatroom_number(chatroom_id_int, is_in_bool):
 def list_room():
     res = []
     for item in chatroom_lists:
-        res.append(item.getinfo())
-    return str({'room_list':res})
+        res.append(item.get_dict())
+    return json.dumps({'room_list':res})
 
 @chatroom_bp.route('/create', methods={'GET'})
 def in_or_out_room():
