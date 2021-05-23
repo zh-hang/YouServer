@@ -25,7 +25,7 @@ class Message:
 
 
 class ChatRoomServer:
-    def __init__(self, chatroom_name_str):
+    def __init__(self):
         self.MSG = queue.Queue()
         self.USERS = set()
 
@@ -74,6 +74,8 @@ class ChatRoomServer:
             await self.unregister(websocket)
 
     def run(self):
+        new_loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(new_loop)
         start_server = websockets.serve(self.counter, "localhost", 2333)
         asyncio.get_event_loop().run_until_complete(start_server)
         asyncio.get_event_loop().run_forever()
@@ -96,5 +98,5 @@ class ChattingPool:
             self.server_pool.add(ChatRoomServer(chatroom_name_str))
 
 if __name__ == "__main__":
-    server = ChatRoomServer('test')
+    server = ChatRoomServer()
     server.run()

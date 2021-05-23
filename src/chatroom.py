@@ -56,8 +56,10 @@ try:
 except Exception as e:
     print(e)
 
-# new_chatting=chatting.ChatRoomServer("test")
+new_chatting=chatting.ChatRoomServer()
 
+thread=threading.Thread(target=new_chatting.run)
+thread.start()
 
 
 def modify_chatroom_number(chatroom_id_int, is_in_bool):
@@ -67,8 +69,6 @@ def modify_chatroom_number(chatroom_id_int, is_in_bool):
                 i.population_int += 1
             else:
                 i.population_int -= 1
-
-
 
 @chatroom_bp.route('/list', methods={'GET'})
 def list_room():
