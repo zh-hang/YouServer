@@ -1,8 +1,7 @@
 import sqlite3
 import json
 
-from . import db, app_socket_io
-from flask_socketio import SocketIO, emit, join_room, leave_room, send
+from . import db,chatting
 from flask import (Blueprint, flash, g, redirect, render_template, request, session, url_for, current_app)
 from werkzeug.security import (check_password_hash, generate_password_hash)
 
@@ -66,46 +65,6 @@ def modify_chatroom_number(chatroom_id_int, is_in_bool):
                 i.population_int -= 1
 
 
-@app_socket_io.on('connect')
-def test_connect():
-    print('connect')
-
-
-@app_socket_io.on('join')
-def on_join(data):
-    print(data)
-    username = data['username']
-    room_id_string = int(data['room_id_sting'])
-    join_room(int(room_id_string))
-    modify_chatroom_number(room_id_string, True)
-    send(username + ' has entered the room.', to=room_id_string)
-
-
-@app_socket_io.on('chat')
-def broadcast(data):
-    message = data['message']
-    room = data['room']
-    send(message, to=room)
-
-
-@app_socket_io.on('leave')
-def on_leave(data):
-    username = data['username']
-    room_id_string = int(data['room_id_string'])
-    leave_room(int(room_id_string))
-    modify_chatroom_number(room_id_string, True)
-    send(username + ' has entered the room.', to=room_id_string)
-
-
-#
-#
-# @app_socket_io.on('leave')
-# def on_leave(data):
-#     username = data['username']
-#     room = data['room']
-#     leave_room(room)
-#     send(username + ' has left the room.', room=room)
-
 
 @chatroom_bp.route('/list', methods={'GET'})
 def list_room():
@@ -114,27 +73,6 @@ def list_room():
         res.append(item.getinfo())
     return str({'room_list':res})
 
-
-@chatroom_bp.route('/room', methods={'GET'})
-def in_or_out_room():
-    in_or_out = int(request.args.get('status'))
-    chatroom_id_int = int(request.args.get('chatroom_id'))
-    username_string = request.args.get('username')
-    is_in_bool = False
-    current_chatroom: Chatroom
-    for i in chatroom_lists:
-        if chatroom_id_int == i.id_int:
-            i.population_int += 1
-            current_chatroom = i
-            is_in_bool = True
-    if not is_in_bool:
-        return 'chatroom id wrong'
-    if in_or_out == 1:
-        # on_join({'username': username_string, 'room': chatroom_id_int})
-        # return 'get in chatroom:\n' + str(current_chatroom)
-        return render_template('/chatroom/room.html')
-    elif in_or_out == 0:
-        # on_leave({'username': username_string, 'room': chatroom_id_int})
-        return 'leave chatroom:\n' + str(current_chatroom)
-    else:
-        return 'something wrong'
+@chatroom_bp.route('/connect_test',methods={'GET'})
+def connect_test():
+    return 'connect successfully'

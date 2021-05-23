@@ -1,9 +1,7 @@
 import os
 
 from flask import Flask, redirect, url_for
-from flask_socketio import SocketIO, emit, join_room, leave_room, send
 
-app_socket_io: SocketIO
 
 
 # 创建一个flask实例
@@ -29,7 +27,6 @@ def create_app(test_config=None):
         pass
 
     global app_socket_io
-    app_socket_io = SocketIO(app)
 
     # @app_socket_io.on('message')
     # def handle_message(message):
@@ -64,4 +61,4 @@ def create_app(test_config=None):
 
 if __name__ == '__main__':
     app = create_app()
-    app_socket_io.run(app)
+    app.run()
