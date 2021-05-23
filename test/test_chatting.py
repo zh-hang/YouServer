@@ -6,7 +6,7 @@ import json
 import unittest
 
 async def hello():
-    uri = "ws://localhost:2333"
+    uri = "ws://localhost:2333/chatroom/+room"
     async with websockets.connect(uri) as websocket:
         msg={"name":"test","msg":"test"}
         await websocket.send(json.dumps(msg))

@@ -26,27 +26,6 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    global app_socket_io
-
-    # @app_socket_io.on('message')
-    # def handle_message(message):
-    #     print('received message:' + message)
-    #     send('got it')
-    #
-    # @app_socket_io.on('join')
-    # def on_join(data):
-    #     username = data['username']
-    #     room = data['room']
-    #     join_room(room)
-    #     send(username + ' has entered the room.', room=room)
-    #
-    # @app_socket_io.on('leave')
-    # def on_leave(data):
-    #     username = data['username']
-    #     room = data['room']
-    #     leave_room(room)
-    #     send(username + ' has left the room.', room=room)
-
     from . import auth, chatroom, db
 
     app.register_blueprint(auth.auth_bp)

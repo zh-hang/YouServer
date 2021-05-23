@@ -15,7 +15,7 @@ class Chatroom:
         self.name_string = chatroom_name_string
         self.population_int = 0
 
-    def getinfo(self):
+    def get_dict(self):
         return {'id': self.id_int, 'name': self.name_string, 'population': self.population_int}
 
     def __eq__(self, other_chatroom):
@@ -79,11 +79,9 @@ def list_room():
         res.append(item.getinfo())
     return str({'room_list':res})
 
-@chatroom_bp.route('/room', methods={'GET'})
+@chatroom_bp.route('/create', methods={'GET'})
 def in_or_out_room():
-    in_or_out = int(request.args.get('status'))
-    chatroom_id_int = int(request.args.get('chatroom_id'))
-    username_string = request.args.get('username')
+    in_or_out = int(request.args.get('name'))
     is_in_bool = False
     current_chatroom:Chatroom
     for i in chatroom_lists:
@@ -94,11 +92,8 @@ def in_or_out_room():
     if not is_in_bool:
         return 'chatroom id wrong'
     if in_or_out == 1:
-        # on_join({'username': username_string, 'room': chatroom_id_int})
-        # return 'get in chatroom:\n' + str(current_chatroom)
         return render_template('/chatroom/room.html')
     elif in_or_out == 0:
-        # on_leave({'username': username_string, 'room': chatroom_id_int})
         return 'leave chatroom:\n' + str(current_chatroom)
     else:
         return 'something wrong'

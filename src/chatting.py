@@ -63,7 +63,6 @@ class ChatRoomServer:
     async def counter(self, websocket, path):
         await self.register(websocket)
         try:
-            # await websocket.send(self.state_event())
             async for message in websocket:
                 data = json.loads(message)
                 if "name"in data and "msg" in data and data["name"] is not None and data["msg"] is not None:
