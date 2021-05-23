@@ -12,29 +12,35 @@ logging.basicConfig()
 
 
 class Message:
-    def __init__(self,user_name_str,message_str):
-        msg={"name":user_name_str,"msg":message_str}
-    
+    def __init__(self, user_name_str, message_str):
+        self.msg = {"name": user_name_str, "msg": message_str}
+
     def __str__(self) -> str:
         return str(self.msg)
 
+    def get_dict(self):
+        return self.msg
 
 class ChatRoomServer:
     MSG = queue.Queue()
     USERS = set()
 
     def __init__(self, chatroom_name_str):
-        NAME = chatroom_name_str
+        self.NAME = chatroom_name_str
+
+    def message_event(self):
+        if self.MSG.empty():
+            return None
+        msg=self.MSG.get()
+        return json.dumps({"type": "msg", "data": msg.get_dict()})
 
     def users_event(self):
-        return json.dumps({"type": "users", "count": len(self.USERS)})
+        return json.dumps({"type": "users", "data": len(self.USERS)})
 
     async def notify_message(self):
-        while True:
-            if not self.MSG.empty():
-                msg=self.MSG.get()
-                if self.USERS:
-                    await asyncio.wait([user.send(msg) for user in self.USERS])
+        msg = self.message_event()
+        if msg != None and self.USERS:
+            await asyncio.wait([user.send(msg) for user in self.USERS])
 
     async def notify_users(self):
         if self.USERS:
@@ -55,8 +61,9 @@ class ChatRoomServer:
             # await websocket.send(self.state_event())
             async for message in websocket:
                 data = json.loads(message)
-                if data["name"]is not None and data["msg"] is not None:
-                    await self.MSG.put(Message(data["name"],data["msg"]),block=True,timeout=1000)
+                if "name"in data and "msg" in data and data["name"] is not None and data["msg"] is not None:
+                    self.MSG.put(Message(data["name"], data["msg"]), block=True, timeout=1000)
+                    await self.notify_message()
                 else:
                     logging.error("unsupported event: %s", data)
         finally:
@@ -67,6 +74,7 @@ class ChatRoomServer:
         asyncio.get_event_loop().run_until_complete(start_server)
         asyncio.get_event_loop().run_forever()
 
-if __name__=="__main__":
-    server=ChatRoomServer('test')
+
+if __name__ == "__main__":
+    server = ChatRoomServer('test')
     server.run()

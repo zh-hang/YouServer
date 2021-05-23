@@ -18,7 +18,7 @@ api:http://124.70.97.253:5000/chatroom/list
 
 ## 进入聊天室
 
-api:http://124.70.97.253:5000/chatroom/room?chatroom_id=1&status=1&user_id=0
+api:http://124.70.97.253:2333
 
 ### 参数
 

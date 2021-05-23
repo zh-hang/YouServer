@@ -72,7 +72,3 @@ def list_room():
     for item in chatroom_lists:
         res.append(item.getinfo())
     return str({'room_list':res})
-
-@chatroom_bp.route('/connect_test',methods={'GET'})
-def connect_test():
-    return 'connect successfully'
