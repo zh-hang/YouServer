@@ -1,5 +1,6 @@
 import sqlite3
 import json
+import threading
 
 from . import db,chatting
 from flask import (Blueprint, flash, g, redirect, render_template, request, session, url_for, current_app)
@@ -55,6 +56,11 @@ try:
 except Exception as e:
     print(e)
 
+new_chatting=chatting.ChatRoomServer("test")
+
+thread = threading.Thread(target=new_chatting.run())
+thread.start()
+
 
 def modify_chatroom_number(chatroom_id_int, is_in_bool):
     for i in chatroom_lists:
@@ -72,3 +78,27 @@ def list_room():
     for item in chatroom_lists:
         res.append(item.getinfo())
     return str({'room_list':res})
+
+@chatroom_bp.route('/room', methods={'GET'})
+def in_or_out_room():
+    in_or_out = int(request.args.get('status'))
+    chatroom_id_int = int(request.args.get('chatroom_id'))
+    username_string = request.args.get('username')
+    is_in_bool = False
+    current_chatroom:Chatroom
+    for i in chatroom_lists:
+        if chatroom_id_int == i.id_int:
+            i.people_number_int += 1
+            current_chatroom = i
+            is_in_bool = True
+    if not is_in_bool:
+        return 'chatroom id wrong'
+    if in_or_out == 1:
+        # on_join({'username': username_string, 'room': chatroom_id_int})
+        # return 'get in chatroom:\n' + str(current_chatroom)
+        return render_template('/chatroom/room.html')
+    elif in_or_out == 0:
+        # on_leave({'username': username_string, 'room': chatroom_id_int})
+        return 'leave chatroom:\n' + str(current_chatroom)
+    else:
+        return 'something wrong'

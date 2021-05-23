@@ -7,9 +7,11 @@ import json
 import logging
 import websockets
 import queue
+import threading
 
 logging.basicConfig()
 
+MAX_USR_NUM=20
 
 class Message:
     def __init__(self, user_name_str, message_str):
@@ -21,12 +23,11 @@ class Message:
     def get_dict(self):
         return self.msg
 
-class ChatRoomServer:
-    MSG = queue.Queue()
-    USERS = set()
 
+class ChatRoomServer:
     def __init__(self, chatroom_name_str):
-        self.NAME = chatroom_name_str
+        self.MSG = queue.Queue()
+        self.USERS = set()
 
     def message_event(self):
         if self.MSG.empty():
@@ -48,8 +49,12 @@ class ChatRoomServer:
             await asyncio.wait([user.send(message) for user in self.USERS])
 
     async def register(self, websocket):
-        self.USERS.add(websocket)
-        await self.notify_users()
+        if(len(self.USERS)<MAX_USR_NUM):
+            self.USERS.add(websocket)
+            await self.notify_users()
+        else:
+            websocket.send(json.dumps({"type":"error","data":{"msg":"The number of people in the chatroom reaches the upper limit."}}))
+            websocket.close()
 
     async def unregister(self, websocket):
         self.USERS.remove(websocket)
@@ -73,7 +78,23 @@ class ChatRoomServer:
         start_server = websockets.serve(self.counter, "localhost", 2333)
         asyncio.get_event_loop().run_until_complete(start_server)
         asyncio.get_event_loop().run_forever()
+    
+    def close(self):
+        asyncio.get_event_loop().close()
+    
 
+class ChattingPool:
+    def __init__(self) -> None:
+        self.server_pool=set()
+        self.server_name_lists=list()
+    
+    def create_server(self,chatroom_name_str):
+        is_in=False
+        for server in self.server_name_lists:
+            if(chatroom_name_str==server.NAME):
+                is_in=True
+        if is_in:
+            self.server_pool.add(ChatRoomServer(chatroom_name_str))
 
 if __name__ == "__main__":
     server = ChatRoomServer('test')

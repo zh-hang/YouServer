@@ -56,7 +56,6 @@ def create_app(test_config=None):
     def init():
         return 'hello world'
 
-
     return app
 
 
