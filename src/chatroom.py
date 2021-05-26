@@ -77,6 +77,8 @@ def modify_chatroom_population(chatroom_name_str, in_or_out):
                 i.population_int += 1
                 return MODIFY_JOIN
             elif in_or_out==0:
+                if i.population_int<=0:
+                    return MODIFY_INVALID_ROOM
                 i.population_int -= 1
                 return MODIFY_LEAVE
             return MODIFY_INVALID_STATUS
