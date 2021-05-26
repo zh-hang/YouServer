@@ -1,5 +1,4 @@
 import unittest
-
 class TestChatroomMethods(unittest.TestCase):
     pass
 
