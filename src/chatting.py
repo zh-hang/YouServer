@@ -12,17 +12,31 @@ import threading
 logging.basicConfig()
 
 
+INVALID_MSG = 0
+INVALID_DATA = 1
+ILLEGAL_DATA = 3
+
+
 class ChatRoomServer:
     def __init__(self):
         self.MSG = queue.Queue()
         self.ROOMS = dict()
 
-    def checkout_data(self, websocket, data):
-        if data['type'] == None or data['data'] == None or data['data']['user_name'] == None:
-            websocket.send({'type': 'error', 'data': {
-                           'user_name': data['data']['user_name'], 'room_name': '', 'msg': 'invalid data'}})
-            return False
-        return True
+    def checkout_data(self,  message):
+        if 'type'not in message or 'data' not in message:
+            new_message = json.dumps({'type': 'error', 'data': {
+                                     'user_name': '', 'room_name': '', 'msg': 'invalid message'}})
+            return (INVALID_MSG, new_message)
+        data = message['data']
+        if 'user_name'not in data or 'room_name'not in data or 'msg'not in data:
+            new_message = json.dumps({'type': 'error', 'data': {
+                                     'user_name': '', 'room_name': '', 'msg': 'invalid data'}})
+            return (INVALID_DATA, new_message)
+        if data['user_name'] == '' or data['room_name'] == '':
+            new_message = json.dumps({'type': 'error', 'data': {
+                                     'user_name': '', 'room_name': '', 'msg': 'illegal data'}})
+            return (INVALID_DATA, new_message)
+        return (True, '')
 
     def message_event(self):
         if self.MSG.empty():
@@ -32,61 +46,81 @@ class ChatRoomServer:
 
     async def notify_message(self):
         msg = self.message_event()
-        if msg != None and self.ROOMS:
+        if msg != None and self.ROOMS.keys():
             await asyncio.wait([user.send(msg) for user in self.ROOMS[msg['room_name']]])
 
     async def register(self, websocket, room_name_str, user_name_str):
         if room_name_str == None or user_name_str == None:
-            websocket.send({'type': 'error', 'data': {
-                           'user_name': user_name_str, 'room_name': room_name_str, 'msg': 'invalid data'}})
+            message = json.dumps({'type': 'error', 'data': {
+                                 'user_name': user_name_str, 'room_name': room_name_str, 'msg': 'invalid data'}})
+            await asyncio.wait(websocket.send(message))
 
-        if room_name_str in self.ROOMS:
+        if room_name_str in self.ROOMS.keys():
             self.ROOMS[room_name_str].append(
                 {'user': user_name_str, 'socket': websocket})
-            message = {'type': 'user', 'data': {
-                'user_name': user_name_str, 'room_name': room_name_str, 'msg': 'join'}}
+            message = json.dumps({'type': 'user', 'data': {
+                                 'user_name': user_name_str, 'room_name': room_name_str, 'msg': 'join'}})
             await asyncio.wait([user['socket'].send(message) for user in self.ROOMS[room_name_str]])
 
         else:
-            self.ROOMS[room_name_str] = [websocket]
-            message = {'type': 'user', 'data': {
-                'user_name': user_name_str, 'room_name': room_name_str, 'msg': 'create'}}
+            self.ROOMS[room_name_str] = [
+                {'user': user_name_str, 'socket': websocket}]
+            message = json.dumps({'type': 'user', 'data': {
+                                 'user_name': user_name_str, 'room_name': room_name_str, 'msg': 'create'}})
             await asyncio.wait([user['socket'].send(message) for user in self.ROOMS[room_name_str]])
 
-    async def unregister(self, websocket, room_name_str, user_name_str):
-        if room_name_str in self.ROOMS:
+    async def unregister(self, room_name_str, user_name_str):
+        if room_name_str in self.ROOMS.keys():
+            print(self.ROOMS)
             for item in self.ROOMS[room_name_str]:
                 if item['user'] == user_name_str:
                     self.ROOMS[room_name_str].remove(item)
                     message = {'type': 'user', 'data': {
                         'user_name': user_name_str, 'room_name': room_name_str, 'msg': 'leave'}}
-                    await asyncio.wait([user['socket'].send(message) for user in self.ROOMS[room_name_str]])
+                    if len(self.ROOMS[room_name_str]) != 0:
+                        await asyncio.wait([user['socket'].send(json.dumps(message)) for user in self.ROOMS[room_name_str]])
 
-        websocket.close()
+        # websocket.close()
 
     async def counter(self, websocket, path):
+        is_join = False
         try:
             async for message in websocket:
-                if not self.checkout_data(message):
-                    continue
-
                 data = json.loads(message)
-
+                checkout_res = self.checkout_data(data)
+                if not checkout_res[0]:
+                    await websocket.send(checkout_res[1])
+                    continue
+                is_join = True
                 if data['type'] == 'join':
                     await self.register(websocket, data['data']['room_name'], data['data']['user_name'])
+                    continue
 
                 elif data['type'] == 'leave':
-                    await self.unregister(websocket, data['data']['room_name'], data['data']['user_name'])
+                    await self.unregister(data['data']['room_name'], data['data']['user_name'])
+                    continue
 
                 elif data['type'] == 'msg':
-                    if data['data']['msg'] is not None:
-                        self.MSG.put(data['data'], block=True, timeout=1000)
-                        await self.notify_message()
+                    if 'msg' in data['data']:
+                        if data['data']['msg'] != '':
+                            self.MSG.put(
+                                data['data'], block=True, timeout=1000)
+                            await self.notify_message()
+                            continue
+                        else:
+                            message = json.dumps({'type': 'error', 'data': {
+                                                 'user_name': '', 'room_name': '', 'msg': 'null message'}})
                     else:
-                        logging.error('unsupported event: %s', data)
+                        message = json.dumps({'type': 'error', 'data': {
+                                             'user_name': '', 'room_name': '', 'msg': 'invalid msg'}})
+                else:
+                    message = json.dumps({'type': 'error', 'data': {
+                                         'user_name': '', 'room_name': '', 'msg': 'illegal type'}})
+                await websocket.send(message)
 
         finally:
-            await self.unregister(websocket)
+            if is_join:
+                await self.unregister(data['data']['room_name'], data['data']['user_name'])
 
     def run(self):
         new_loop = asyncio.new_event_loop()
