@@ -108,7 +108,7 @@ ws://124.70.97.253:2333
 
 | 字段      | 内容       | 备注                            |
 | --------- | ---------- | ------------------------------- |
-| user_name | 用户名称   | 不能为空                        |
+| user_name | 用户名称   | type为error时可以为空           |
 | room_name | 聊天室名称 | type为join,leave和msg时不能为空 |
 | msg       | 用户消息   | type为msg时不能为空             |
 
@@ -121,6 +121,130 @@ ws://124.70.97.253:2333
         "user_name":"",
         "room_name":"",
         "msg":"",
+    }
+}
+```
+
+### 错误信息
+
+| 内容            | 含义                         |
+| --------------- | ---------------------------- |
+| invalid message | 缺失type或data字段           |
+| invalid msg     | 缺失msg字段                  |
+| invalid data    | 缺失user_name或room_name字段 |
+| illegal data    | user_name或roo_name字段为空  |
+| null message    | msg字段为空                  |
+
+### 请求
+
+#### create
+
+##### 示例
+
+```json
+{
+    "type":"join",
+    "data":{
+        "user_name":"test",
+        "room_name":"TEST",
+        "msg":""
+    }
+}
+```
+
+##### 返回值
+
+```json
+{
+    'type': 'user', 
+    'data': {
+        'user_name': 'test',
+        'room_name': 'TEST',
+        'msg': 'create'
+    }
+}
+```
+
+#### join
+
+##### 示例
+
+```json
+{
+    "type":"join",
+    "data":{
+        "user_name":"test",
+        "room_name":"TEST",
+        "msg":""
+    }
+}
+```
+
+##### 返回值
+
+```json
+{
+    'type': 'user', 
+    'data': {
+        'user_name': 'test',
+        'room_name': 'TEST',
+        'msg': 'join'
+    }
+}
+```
+
+#### leave
+
+##### 示例
+
+```json
+{
+    "type":"leave",
+    "data":{
+        "user_name":"test",
+        "room_name":"TEST",
+        "msg":""
+    }
+}
+```
+
+##### 返回值
+
+```json
+{
+    'type': 'user', 
+    'data': {
+        'user_name': 'test',
+        'room_name': 'TEST',
+        'msg': 'leave'
+    }
+}
+```
+
+#### msg
+
+##### 示例
+
+```json
+{
+    "type":"msg",
+    "data":{
+        "user_name":"test",
+        "room_name":"TEST",
+        "msg":"hello"
+    }
+}
+```
+
+##### 返回值
+
+```json
+{
+    "type":"msg",
+    "data":{
+        "user_name":"test",
+        "room_name":"TEST",
+        "msg":"hello"
     }
 }
 ```
