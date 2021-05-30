@@ -9,15 +9,43 @@ from werkzeug.security import (check_password_hash, generate_password_hash)
 
 chatroom_bp = Blueprint('chatroom', __name__, url_prefix='/chatroom')
 
+MAX_POPULATION = 10
+
+USER_JOIN = 0
+USER_LEAVE = 1
+USER_INVALID_STATUS = 2
+USER_INVALID_ROOM = 3
+USER_INVALID_USER = 4
+USER_FULL_ROOM = 5
+
+STATUS_LEAVE = 0
+STATUS_JOIN = 1
+
 
 class Chatroom:
     def __init__(self, chatroom_id_int, chatroom_name_str):
         self.id_int = chatroom_id_int
         self.name_str = chatroom_name_str
         self.population_int = 0
+        self.users = []
 
     def get_dict(self):
         return {'name': self.name_str, 'population': self.population_int}
+
+    def add_user(self, user_name):
+        if self.population_int < 10:
+            self.users.append(user_name)
+            self.population_int += 1
+            return USER_JOIN
+        return USER_FULL_ROOM
+
+    def remove_user(self, user_name):
+        for user in self.users:
+            if user == user_name:
+                self.users.remove(user)
+                self.population_int -= 1
+                return USER_LEAVE
+        return USER_INVALID_USER
 
     def __eq__(self, other_chatroom):
         return self.id_int == other_chatroom.id_int
@@ -38,22 +66,22 @@ class ChatroomResource:
             print('everything fine')
 
     @staticmethod
-    def getChatroomLists():
+    def getChatroomDict():
         chatroom_db = sqlite3.connect('./instance/you.db')
         chatroom_db_lists = chatroom_db.execute(
             'SELECT * FROM chatroom').fetchall()
         print(chatroom_db_lists)
-        chatroom_temp_lists = []
+        chatroom_temp_dict = dict()
         for i in chatroom_db_lists:
-            chatroom_temp_lists.append(Chatroom(i[0], i[1]))
+            chatroom_temp_dict[i[1]] = Chatroom(i[0], i[1])
         chatroom_db.close()
-        return chatroom_temp_lists
+        return chatroom_temp_dict
 
 
-chatroom_lists = []
+chatroom_dict = dict()
 try:
     with ChatroomResource() as resource:
-        chatroom_lists = resource.getChatroomLists()
+        chatroom_dict = resource.getChatroomDict()
 except Exception as e:
     print(e)
 
@@ -63,54 +91,46 @@ thread = threading.Thread(target=new_chatting.run)
 thread.start()
 
 
-MODIFY_JOIN=0
-MODIFY_LEAVE=1
-MODIFY_INVALID_STATUS=2
-MODIFY_INVALID_ROOM=3
-MODIFY_FULL_ROOM=4
-def modify_chatroom_population(chatroom_name_str, in_or_out):
-    for i in chatroom_lists:
-        if i.name_str == chatroom_name_str:
-            if in_or_out==1:
-                if i.population_int >=10:
-                    return MODIFY_FULL_ROOM
-                i.population_int += 1
-                return MODIFY_JOIN
-            elif in_or_out==0:
-                if i.population_int<=0:
-                    return MODIFY_INVALID_ROOM
-                i.population_int -= 1
-                return MODIFY_LEAVE
-            return MODIFY_INVALID_STATUS
-    return MODIFY_INVALID_ROOM
+def user_action(chatroom_name_str, user_name_str, in_or_out):
+    print(chatroom_dict)
+    if chatroom_name_str in chatroom_dict.keys():
+        if in_or_out == STATUS_JOIN:
+            return chatroom_dict[chatroom_name_str].add_user(user_name_str)
+        elif in_or_out == STATUS_LEAVE:
+            return chatroom_dict[chatroom_name_str].remove_user(user_name_str)
+        else:
+            return USER_INVALID_STATUS
+    return USER_INVALID_ROOM
+
 
 @chatroom_bp.route('/')
 def hello():
     return 'hello'
 
+
 @chatroom_bp.route('/list', methods={'GET'})
 def list_room():
     res = []
-    for item in chatroom_lists:
-        res.append(item.get_dict())
+    for key in chatroom_dict.keys():
+        res.append(chatroom_dict[key].get_dict())
     return json.dumps({'room_list': res})
-
-
 
 
 @chatroom_bp.route('/room', methods={'GET'})
 def in_or_out_room():
+    chatroom_name = str(request.args.get('room_name'))
+    user_name = str(request.args.get('user_name'))
     in_or_out = int(request.args.get('status'))
-    chatroom_name = str(request.args.get('name'))
-    is_modified = modify_chatroom_population(chatroom_name, in_or_out)
-    if is_modified==MODIFY_JOIN:
-        return json.dumps({'res':'join chatroom'})
-    elif is_modified==MODIFY_LEAVE:
-        return json.dumps({'res':'leave chatroom'})
-    elif is_modified==MODIFY_INVALID_STATUS:
-        return json.dumps({'res':'invalid status'})
-    elif is_modified==MODIFY_INVALID_ROOM:
-        return json.dumps({'res':'invalid room'})
-    elif is_modified==MODIFY_FULL_ROOM:
-        return json.dumps({'res':'room full'})
-
+    is_modified = user_action(chatroom_name, user_name, in_or_out)
+    if is_modified == USER_JOIN:
+        return json.dumps({'res': 'join chatroom'})
+    elif is_modified == USER_LEAVE:
+        return json.dumps({'res': 'leave chatroom'})
+    elif is_modified == USER_INVALID_STATUS:
+        return json.dumps({'res': 'invalid status'})
+    elif is_modified == USER_INVALID_ROOM:
+        return json.dumps({'res': 'invalid room'})
+    elif is_modified == USER_INVALID_USER:
+        return json.dumps({'res': 'user not exist'})
+    elif is_modified == USER_FULL_ROOM:
+        return json.dumps({'res': 'full room'})
