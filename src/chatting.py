@@ -53,13 +53,12 @@ class ChatRoomServer:
     def message_event(self):
         if self.MSG.empty():
             return None
-        msg = self.MSG.get()
-        return json.dumps({'type': 'msg', 'data': msg})
+        return self.MSG.get()
 
     async def notify_message(self):
         msg = self.message_event()
         if msg is not None and self.ROOMS.keys():
-            await asyncio.wait([user.send(msg) for user in self.ROOMS[msg]['room_name']])
+            await asyncio.wait([user['socket'].send(json.dumps(msg)) for user in self.ROOMS[msg['data']['room_name']]])
 
     async def register(self, websocket, room_name_str, user_name_str):
         if room_name_str is None or user_name_str is None:
@@ -120,7 +119,7 @@ class ChatRoomServer:
                     if 'msg' in data['data']:
                         if data['data']['msg'] != '':
                             self.MSG.put(
-                                data['data'], block=True, timeout=1000)
+                                data, block=True, timeout=1000)
                             await self.notify_message()
                             continue
                         else:
