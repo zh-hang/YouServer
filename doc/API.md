@@ -128,13 +128,12 @@ ws://124.70.97.253:2333
 
 ### 错误信息
 
-| 内容            | 含义                         |
-| --------------- | ---------------------------- |
-| invalid message | 缺失type或data字段           |
-| invalid msg     | 缺失msg字段                  |
-| invalid data    | 缺失user_name或room_name字段 |
-| illegal data    | user_name或roo_name字段为空  |
-| null message    | msg字段为空                  |
+| 内容            | 含义                        |
+| --------------- | --------------------------- |
+| invalid message | 缺失type或data字段          |
+| invalid data    | data缺失字段                |
+| illegal data    | user_name或roo_name字段为空 |
+| null message    | msg字段为空                 |
 
 ### 请求
 

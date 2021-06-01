@@ -1,0 +1,6 @@
+click~=8.0.1
+Flask~=2.0.1
+Werkzeug~=2.0.1
+websockets~=9.1
+requests~=2.25.1
+setuptools~=57.0.0
