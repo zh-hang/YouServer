@@ -10,6 +10,8 @@ import queue
 
 logging.basicConfig()
 
+ip_addr='0.0.0.0'
+
 MESSAGE_OK = 0
 INVALID_MESSAGE = 1
 INVALID_DATA = 2
@@ -138,10 +140,13 @@ class ChatRoomServer:
                 await self.unregister(data['data']['room_name'], data['data']['user_name'])
 
     def run(self):
+        global ip_addr
         new_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(new_loop)
-        start_server = websockets.serve(self.counter, 'localhost', 2333)
+        start_server = websockets.serve(self.counter, ip_addr, 2333)
+        print('webserver run')
         asyncio.get_event_loop().run_until_complete(start_server)
+
         asyncio.get_event_loop().run_forever()
 
     def close(self):

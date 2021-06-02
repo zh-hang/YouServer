@@ -5,7 +5,7 @@ import test_chatting as tc
 
 
 async def hello():
-    uri = "ws://localhost:2333"
+    uri = "ws://124.70.97.253:2333"
     async with websockets.connect(uri) as websocket:
         package = tc.set_package('join', 'test', 'TEST')
         await websocket.send(json.dumps(package))
