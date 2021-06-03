@@ -26,6 +26,13 @@ class TestChatroomMethods(unittest.TestCase):
         self.assertIn('name', res.text)
         self.assertIn('population', res.text)
 
+    def test_chatroom_create(self):
+        url = host + '/create?room_name=TEST'
+        self.assertEqual('chatroom already exist', get_res(url, 'GET')['res'])
+
+        url = host + '/create?room_name=T'
+        self.assertEqual('chatroom create successfully', get_res(url, 'GET')['res'])
+
     def test_chatroom_room(self):
         url = get_room_url('NONE_TEST', 'test', '1')
         self.assertEqual(get_res(url, 'GET')['res'], 'invalid room')

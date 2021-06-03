@@ -23,8 +23,7 @@ STATUS_JOIN = 1
 
 
 class Chatroom:
-    def __init__(self, chatroom_id_int, chatroom_name_str):
-        self.id_int = chatroom_id_int
+    def __init__(self, chatroom_name_str):
         self.name_str = chatroom_name_str
         self.population_int = 0
         self.users = []
@@ -48,7 +47,7 @@ class Chatroom:
         return USER_INVALID_USER
 
     def __eq__(self, other_chatroom):
-        return self.id_int == other_chatroom.id_int
+        return self.name_str == other_chatroom.name_str
 
     def __str__(self):
         return '{"name":' + self.name_str + ',"population":' + str(
@@ -73,7 +72,7 @@ class ChatroomResource:
         print(chatroom_db_lists)
         chatroom_temp_dict = dict()
         for i in chatroom_db_lists:
-            chatroom_temp_dict[i[1]] = Chatroom(i[0], i[1])
+            chatroom_temp_dict[i[1]] = Chatroom(i[1])
         chatroom_db.close()
         return chatroom_temp_dict
 
@@ -116,21 +115,35 @@ def list_room():
     return json.dumps({'room_list': res})
 
 
+@chatroom_bp.route('/create', methods={'GET'})
+def create_room():
+    chatroom_name = str(request.args.get('room_name'))
+    if chatroom_name in chatroom_dict.keys():
+        return json.dumps({'res': 'chatroom already exist'})
+    chatroom_dict[chatroom_name] = Chatroom(chatroom_name)
+    print('create chatroom ' + chatroom_name)
+    return json.dumps({'res': 'chatroom create successfully'})
+
+
 @chatroom_bp.route('/room', methods={'GET'})
 def in_or_out_room():
+    global chatroom_dict
     chatroom_name = str(request.args.get('room_name'))
     user_name = str(request.args.get('user_name'))
     in_or_out = int(request.args.get('status'))
-    is_modified = user_action(chatroom_name, user_name, in_or_out)
-    if is_modified == USER_JOIN:
+    user_action_res = user_action(chatroom_name, user_name, in_or_out)
+    if user_action_res == USER_JOIN:
+        print(user_name + ' join chatroom: ' + chatroom_name)
         return json.dumps({'res': 'join chatroom'})
-    elif is_modified == USER_LEAVE:
+    elif user_action_res == USER_LEAVE:
+        print(user_name + ' leave chatroom: ' + chatroom_name)
+        chatroom_dict.pop(chatroom_name)
         return json.dumps({'res': 'leave chatroom'})
-    elif is_modified == USER_INVALID_STATUS:
+    elif user_action_res == USER_INVALID_STATUS:
         return json.dumps({'res': 'invalid status'})
-    elif is_modified == USER_INVALID_ROOM:
+    elif user_action_res == USER_INVALID_ROOM:
         return json.dumps({'res': 'invalid room'})
-    elif is_modified == USER_INVALID_USER:
+    elif user_action_res == USER_INVALID_USER:
         return json.dumps({'res': 'user not exist'})
-    elif is_modified == USER_FULL_ROOM:
+    elif user_action_res == USER_FULL_ROOM:
         return json.dumps({'res': 'full room'})
