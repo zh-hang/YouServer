@@ -17,6 +17,8 @@ pip install requirements.txt
 
 ### 配置数据库
 
+在根目录创建`instance`目录
+
 ```shell
 python3 database_init.py
 ```
