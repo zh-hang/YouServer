@@ -14,6 +14,7 @@ c.execute(
     user_name text not null,
     user_password text not null,
     user_avatar_url text not null);''')
+c.execute('''INSERT INTO user (user_tel,user_name,user_password,user_avatar_url) VALUES (0,'admin','123456','')''')
 print("table user create successfully")
 conn.commit()
 conn.close()

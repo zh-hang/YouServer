@@ -2,6 +2,44 @@
 
 
 
+# auth
+
+## login(doing)
+
+### API
+
+http://124.70.97.253:5000/auth/login
+
+### 参数
+
+| 参数          | 内容     | 备注                     |
+| ------------- | -------- | ------------------------ |
+| user_tel      | 用户电话 |                          |
+| user_password | 密码     | 后续再确定密码的加密方式 |
+
+### 返回值JSON
+
+| 字段 | 内容     | 备注                                                         |
+| ---- | -------- | ------------------------------------------------------------ |
+| res  | 返回值   | user not exist：用户不存在<br />password wrong：密码错误<br />login successfully：登录成功 |
+| data | 返回数据 | 用户信息，成功登录时不为空                                   |
+
+### 示例
+
+```json
+{
+    'res':'login successfully',
+    'data':{
+        'user_tel':0,
+		'user_name':'admin',
+        'user_password':'123456',
+        'user_avatar_url':''
+    }
+}
+```
+
+## register(to do)
+
 # chatroom
 
 ## 聊天室列表

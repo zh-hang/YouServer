@@ -1,6 +1,6 @@
 import sqlite3
-
 import click
+from . import user as u
 from flask import current_app, g
 from flask.cli import with_appcontext
 
@@ -22,3 +22,17 @@ def close_db(e=None):
     db = g.pop('db', None)
     if db is not None:
         db.close()
+
+
+# 查询数据库中是否有该用户
+def search_user(user_tel_int):
+    with sqlite3.connect(
+            current_app.config['DATABASE'],
+            detect_types=sqlite3.PARSE_DECLTYPES
+    ) as db:
+        conn = db.cursor()
+        user = conn.execute(
+            'SELECT * FROM user where user_tel=' + str(user_tel_int)).fetchall()
+        if user is None or len(user) == 0:
+            return u.User()
+        return u.User(user[0][0], user[0][1], user[0][2], user[0][3])
