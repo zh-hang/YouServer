@@ -38,7 +38,7 @@ http://124.70.97.253:5000/auth/login
 }
 ```
 
-## register(to do)
+## register
 
 ### API
 
