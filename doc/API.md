@@ -4,7 +4,7 @@
 
 # auth
 
-## login(doing)
+## login
 
 ### API
 
@@ -24,7 +24,7 @@ http://124.70.97.253:5000/auth/login
 | res  | 返回值   | user not exist：用户不存在<br />password wrong：密码错误<br />login successfully：登录成功 |
 | data | 返回数据 | 用户信息，成功登录时不为空                                   |
 
-### 示例
+#### 示例
 
 ```json
 {
@@ -39,6 +39,32 @@ http://124.70.97.253:5000/auth/login
 ```
 
 ## register(to do)
+
+### API
+
+http://124.70.97.253:5000/auth/register
+
+### 参数
+
+| 参数名        | 内容     | 备注 |
+| ------------- | -------- | ---- |
+| user_tel      | 电话号码 |      |
+| user_name     | 用户名称 |      |
+| user_password | 用户密码 |      |
+
+### 返回值JSON
+
+| 字段 | 内容   | 备注                                                        |
+| ---- | ------ | ----------------------------------------------------------- |
+| res  | 返回值 | register successfully：注册成功<br />user exist：用户已存在 |
+
+#### 示例
+
+```josn
+{
+	'res':'register successfully'
+}
+```
 
 # chatroom
 

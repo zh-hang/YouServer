@@ -8,6 +8,18 @@ from werkzeug.security import (check_password_hash, generate_password_hash)
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
+@auth_bp.route('/register', methods={'GET'})
+def register():
+    user_tel = request.args['user_tel']
+    user_password = str(request.args['user_password'])
+    user_name = str(request.args['user_name'])
+    user = db.search_user(int(user_tel))
+    if user.not_init():
+        db.insert_user(user_tel, user_name, user_password)
+        return json.dumps({'res': 'register successfully'})
+    return json.dumps({'res': 'user exist'})
+
+
 @auth_bp.route('/login', methods={'GET'})
 def login():
     user_tel = request.args['user_tel']

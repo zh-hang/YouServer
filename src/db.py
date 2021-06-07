@@ -36,3 +36,15 @@ def search_user(user_tel_int):
         if user is None or len(user) == 0:
             return u.User()
         return u.User(user[0][0], user[0][1], user[0][2], user[0][3])
+
+
+def insert_user(user_tel_int, user_name_str, user_password_str):
+    with sqlite3.connect(
+            current_app.config['DATABASE'],
+            detect_types=sqlite3.PARSE_DECLTYPES
+    ) as db:
+        conn = db.cursor()
+        conn.execute(
+            '''INSERT INTO user (user_tel,user_name,user_password) VALUES (?,?,?)''',
+            (user_tel_int, user_name_str, user_password_str)
+        )
