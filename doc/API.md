@@ -317,9 +317,19 @@ ws://124.70.97.253:2333
 
 ## 流程
 
+### 注册
+
+1. 调用API`auth/register`注册用户
+2. 返回register successfully则注册成功
+
+### 登录
+
+1. 调用API`auth/login`登录
+2. 返回login successfully则登录成功
+
 ### 创建聊天室
 
-1. 调用API `chatroom/create? ` 创建聊天室资源
+1. 调用API `chatroom/create`创建聊天室资源
 2. 返回chatroom create successfully则资源申请成功
 3. 使用websockets发送type为join类型的包直接进入聊天室
 4. 返回msg “create”则创建成功
