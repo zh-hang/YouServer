@@ -30,10 +30,16 @@ class TestChatroomMethods(unittest.TestCase):
         url = host + '/create?room_name=TEST'
         self.assertEqual('chatroom already exist', get_res(url, 'GET')['res'])
 
-        url = host + '/create?room_name=T'
+        url = host + '/create?room_name=TU'
         self.assertEqual('chatroom create successfully', get_res(url, 'GET')['res'])
 
+        url = host + '/create'
+        self.assertEqual('missing parameters', get_res(url, 'GET')['res'])
+
     def test_chatroom_room(self):
+        url = host + '/room?room_name=et'
+        self.assertEqual(get_res(url, 'GET')['res'], 'missing parameters')
+
         url = get_room_url('NONE_TEST', 'test', '1')
         self.assertEqual(get_res(url, 'GET')['res'], 'invalid room')
 
