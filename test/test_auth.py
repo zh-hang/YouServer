@@ -28,3 +28,26 @@ class TestAuthUnit(unittest.TestCase):
         self.assertEqual(r.json()['res'], 'register successfully')
         r = re.get(curr_url)
         self.assertEqual(r.json()['res'], 'user exist')
+
+    def test_get_user_data(self):
+        user_tel = 0
+        user_name = 'admin'
+        curr_url = url + '/user_data'
+        r = re.get(curr_url)
+        self.assertEqual(r.json()['res'], 'user not exist')
+
+        curr_url = url + '/user_data?user_name=asdfasdf'
+        r = re.get(curr_url)
+        self.assertEqual(r.json()['res'], 'user not exist')
+
+        curr_url = url + '/user_data?user_name='+user_name
+        r = re.get(curr_url)
+        self.assertEqual(r.json()['res'], 'get user data successfully')
+
+        curr_url = url + '/user_data?user_tel='+str(user_tel)
+        r = re.get(curr_url)
+        self.assertEqual(r.json()['res'], 'get user data successfully')
+
+        curr_url = url + '/user_data?user_tel=' + str(1)
+        r = re.get(curr_url)
+        self.assertEqual(r.json()['res'], 'user not exist')

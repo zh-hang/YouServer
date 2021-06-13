@@ -32,7 +32,7 @@ def search_user_by_tel(user_tel_int):
     ) as db:
         conn = db.cursor()
         user = conn.execute(
-            '''SELECT * FROM user where user_tel=?''', user_tel_int).fetchall()
+            'SELECT * FROM user where user_tel=' + str(user_tel_int)).fetchall()
         if user is None or len(user) == 0:
             return u.User()
         return u.User(user[0][0], user[0][1], user[0][2], user[0][3])
@@ -46,7 +46,7 @@ def search_user_by_name(user_name_str):
     ) as db:
         conn = db.cursor()
         user = conn.execute(
-            '''SELECT * FROM user where user_name=?''', user_name_str).fetchall()
+            'SELECT * FROM user where user_name=' + "'" + user_name_str + "'").fetchall()
         if user is None or len(user) == 0:
             return u.User()
         return u.User(user[0][0], user[0][1], user[0][2], user[0][3])
