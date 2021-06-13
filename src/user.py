@@ -1,5 +1,5 @@
 class User:
-    def __init__(self, user_tel_int=-1, user_name_str='', user_password_str='', user_avatar_url_str=''):
+    def __init__(self, user_tel_int=-1, user_name_str='', user_password_str='', user_avatar_url_str='default'):
         self.user_tel = user_tel_int
         self.user_name = user_name_str
         self.user_password = user_password_str
