@@ -53,7 +53,7 @@ http://124.70.97.253:5000/auth/login
 
 | 字段 | 内容     | 备注                                                         |
 | ---- | -------- | ------------------------------------------------------------ |
-| res  | 返回值   | user not exist：用户不存在<br />password wrong：密码错误<br />login successfully：登录成功 |
+| res  | 返回值   | user not exist：用户不存在<br />password wrong：密码错误<br />login successfully：登录成功<br />missing parameters：参数缺失 |
 | data | 返回数据 | 用户信息，成功登录时不为空                                   |
 
 #### 示例
@@ -86,9 +86,9 @@ http://124.70.97.253:5000/auth/register
 
 ### 返回值JSON
 
-| 字段 | 内容   | 备注                                                        |
-| ---- | ------ | ----------------------------------------------------------- |
-| res  | 返回值 | register successfully：注册成功<br />user exist：用户已存在 |
+| 字段 | 内容   | 备注                                                         |
+| ---- | ------ | ------------------------------------------------------------ |
+| res  | 返回值 | register successfully：注册成功<br />user exist：用户已存在<br />missing parameters：参数缺失 |
 
 #### 示例
 

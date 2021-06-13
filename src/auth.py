@@ -10,6 +10,8 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth_bp.route('/register', methods={'GET'})
 def register():
+    if 'user_tel' not in request.args.keys() and 'user_password' not in request.args.keys() and 'user_name' not in request.args.keys():
+        return json.dumps({'res': 'missing parameters', 'data': {}})
     user_tel = request.args['user_tel']
     user_password = str(request.args['user_password'])
     user_name = str(request.args['user_name'])
@@ -22,6 +24,8 @@ def register():
 
 @auth_bp.route('/login', methods={'GET'})
 def login():
+    if 'user_tel' not in request.args.keys() and 'user_password' not in request.args.keys():
+        return json.dumps({'res': 'missing parameters', 'data': {}})
     user_tel = request.args['user_tel']
     user_password = str(request.args['user_password'])
     user = db.search_user_by_tel(int(user_tel))
