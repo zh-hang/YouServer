@@ -46,6 +46,11 @@ class Chatroom:
                 return USER_LEAVE
         return USER_INVALID_USER
 
+    def empty(self):
+        if self.population_int == 0:
+            return True
+        return False
+
     def __eq__(self, other_chatroom):
         return self.name_str == other_chatroom.name_str
 
@@ -137,7 +142,8 @@ def in_or_out_room():
         return json.dumps({'res': 'join chatroom'})
     elif user_action_res == USER_LEAVE:
         print(user_name + ' leave chatroom: ' + chatroom_name)
-        chatroom_dict.pop(chatroom_name)
+        if chatroom_name != 'TEST' and chatroom_name != 'YOU' and chatroom_dict[chatroom_name].empty():
+            chatroom_dict.pop(chatroom_name)
         return json.dumps({'res': 'leave chatroom'})
     elif user_action_res == USER_INVALID_STATUS:
         return json.dumps({'res': 'invalid status'})
