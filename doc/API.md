@@ -1,8 +1,40 @@
 [TOC]
 
-
-
 # auth
+
+## user_data
+
+### API
+
+http://124.70.97.253:5000/auth/user_data
+
+### 参数
+
+| 参数      | 内容     | 备注 |
+| --------- | -------- | ---- |
+| user_name | 用户名称 | 可选 |
+| user_tel  | 用户电话 | 可选 |
+
+### 返回值JSON
+
+| 字段 | 内容     | 备注                                                         |
+| ---- | -------- | ------------------------------------------------------------ |
+| res  | 返回值   | user not exist：用户不存在<br />get user data successfully：获取成功 |
+| data | 返回数据 | 用户信息，获取成功时不为空                                   |
+
+#### 示例
+
+```json
+{
+    "res":"get user data successfully",
+    "data":{
+        "user_tel":0,
+		"user_name":"admin",
+        "user_password":"123456",
+        "user_avatar_url":""
+    }
+}
+```
 
 ## login
 
@@ -350,6 +382,11 @@ ws://124.70.97.253:2333
 ```
 
 ## 流程
+
+### 获取用户信息
+
+1. 调用API`auth/user_data`查询数据
+2. 返回get user data successfully则获取成功
 
 ### 注册
 

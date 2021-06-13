@@ -25,14 +25,28 @@ def close_db(e=None):
 
 
 # 查询数据库中是否有该用户
-def search_user(user_tel_int):
+def search_user_by_tel(user_tel_int):
     with sqlite3.connect(
             current_app.config['DATABASE'],
             detect_types=sqlite3.PARSE_DECLTYPES
     ) as db:
         conn = db.cursor()
         user = conn.execute(
-            'SELECT * FROM user where user_tel=' + str(user_tel_int)).fetchall()
+            '''SELECT * FROM user where user_tel=?''', user_tel_int).fetchall()
+        if user is None or len(user) == 0:
+            return u.User()
+        return u.User(user[0][0], user[0][1], user[0][2], user[0][3])
+
+
+# 查询数据库中是否有该用户
+def search_user_by_name(user_name_str):
+    with sqlite3.connect(
+            current_app.config['DATABASE'],
+            detect_types=sqlite3.PARSE_DECLTYPES
+    ) as db:
+        conn = db.cursor()
+        user = conn.execute(
+            '''SELECT * FROM user where user_name=?''', user_name_str).fetchall()
         if user is None or len(user) == 0:
             return u.User()
         return u.User(user[0][0], user[0][1], user[0][2], user[0][3])
