@@ -121,6 +121,9 @@ class ChatRoomServer:
                 await asyncio.wait(
                     [user['socket'].send(json.dumps(message)) for user in self.ROOMS[room_name_str]])
                 self.ROOMS[room_name_str].remove(item)
+                if room_name_str != 'YOU' and room_name_str != 'TEST' and len(self.ROOMS[room_name_str]) == 0:
+                    resource.chatroom_dict.pop(room_name_str)
+                    self.ROOMS.pop(room_name_str)
                 return MESSAGE_OK, ''
 
     async def counter(self, websocket, path):
