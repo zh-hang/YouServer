@@ -150,7 +150,7 @@ http://124.70.97.253:5000/chatroom/create
 
 | 字段 | 内容     | 备注                                                         |
 | ---- | -------- | ------------------------------------------------------------ |
-| res  | 创建结果 | chatroom create successfully：成功<br />chatroom already exist：失败 |
+| res  | 创建结果 | chatroom create successfully：成功<br />chatroom already exist：失败<br />missing parameters：参数缺失 |
 
 #### 示例
 
@@ -182,7 +182,7 @@ http://124.70.97.253:5000/chatroom/room
 
 | 字段 | 内容   | 备注                                                         |
 | ---- | ------ | ------------------------------------------------------------ |
-| res  | 返回值 | join chatroom：进入聊天室<br />leave chatroom：离开聊天室<br />invalid room：聊天室不存在<br />invalid status：无法识别的状态<br />user not exist：聊天室内无该用户<br />full room：房间满员 |
+| res  | 返回值 | join chatroom：进入聊天室<br />leave chatroom：离开聊天室<br />invalid room：聊天室不存在<br />invalid status：无法识别的状态<br />user not exist：聊天室内无该用户<br />full room：房间满员<br />missing parameters：参数缺失 |
 
 #### 示例
 

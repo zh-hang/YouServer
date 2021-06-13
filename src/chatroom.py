@@ -122,6 +122,8 @@ def list_room():
 
 @chatroom_bp.route('/create', methods={'GET'})
 def create_room():
+    if 'room_name' not in request.args.keys():
+        return json.dumps({'res': 'missing parameters'})
     chatroom_name = str(request.args.get('room_name'))
     if chatroom_name in chatroom_dict.keys():
         return json.dumps({'res': 'chatroom already exist'})
@@ -133,6 +135,8 @@ def create_room():
 @chatroom_bp.route('/room', methods={'GET'})
 def in_or_out_room():
     global chatroom_dict
+    if 'chatroom_name' not in request.args.keys() and 'user_name' not in request.args.keys() and 'status' not in request.args.keys():
+        return json.dumps({'res': 'missing parameters'})
     chatroom_name = str(request.args.get('room_name'))
     user_name = str(request.args.get('user_name'))
     in_or_out = int(request.args.get('status'))
