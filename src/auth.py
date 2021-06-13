@@ -34,7 +34,7 @@ def login():
 
 
 @auth_bp.route('/user_data', methods={'GET'})
-def login():
+def user_data():
     user = None
     if 'user_name' in request.args.keys():
         user_name = str(request.args['user_name'])
