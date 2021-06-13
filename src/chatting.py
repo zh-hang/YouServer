@@ -8,6 +8,8 @@ import logging
 import websockets
 import queue
 
+from . import resource
+
 logging.basicConfig()
 
 ip_addr = '0.0.0.0'
@@ -89,31 +91,37 @@ class ChatRoomServer:
                 [user['socket'].send(json.dumps(msg)) for user in self.ROOMS[msg['data']['room_name']]])
 
     async def register(self, websocket, room_name_str, user_chat_user):
-        if room_name_str in self.ROOMS.keys():
-            self.ROOMS[room_name_str].append(
-                {'user': user_chat_user, 'socket': websocket})
-            message = json.dumps(message_generate(type_str='user', user_chat_user=user_chat_user, msg_str='join'))
-            await asyncio.wait([user['socket'].send(message) for user in self.ROOMS[room_name_str]])
+        if room_name_str not in resource.chatroom_dict.keys():
+            resource.chatroom_dict[room_name_str] = resource.Chatroom(room_name_str)
+        join_res = resource.chatroom_dict[room_name_str].add_user(user_chat_user.user_name)
+        if join_res == resource.USER_FULL_ROOM:
+            websocket.send(json.dumps(message_generate(type_str='error', msg_str='room full')))
         else:
-            self.ROOMS[room_name_str] = [
-                {'user': user_chat_user, 'socket': websocket}]
-            message = json.dumps(message_generate(type_str='user', user_chat_user=user_chat_user, msg_str='create'))
-            await asyncio.wait([user['socket'].send(message) for user in self.ROOMS[room_name_str]])
+            if room_name_str in self.ROOMS.keys():
+                self.ROOMS[room_name_str].append(
+                    {'user': user_chat_user, 'socket': websocket})
+                message = json.dumps(message_generate(type_str='user', user_chat_user=user_chat_user, msg_str='join'))
+                await asyncio.wait([user['socket'].send(message) for user in self.ROOMS[room_name_str]])
+            else:
+                self.ROOMS[room_name_str] = [{'user': user_chat_user, 'socket': websocket}]
+                websocket.send(
+                    json.dumps(message_generate(type_str='user', user_chat_user=user_chat_user, msg_str='create')))
 
     async def unregister(self, room_name_str, user_chat_user=None):
         message = message_generate(type_str='user', user_chat_user=user_chat_user, msg_str='leave')
-        if room_name_str in self.ROOMS.keys():
-            for item in self.ROOMS[room_name_str]:
-                if len(self.ROOMS[room_name_str]) != 0:
-                    if item['user'] == user_chat_user:
-                        await asyncio.wait(
-                            [user['socket'].send(json.dumps(message)) for user in self.ROOMS[room_name_str]])
-                        self.ROOMS[room_name_str].remove(item)
-                        return MESSAGE_OK, ''
+        if room_name_str not in resource.chatroom_dict:
+            message['data']['msg'] = 'room not exist'
+            return ROOM_NOT_EXIST, json.dumps(message)
+        leave_res = resource.chatroom_dict[room_name_str].remove_user(user_chat_user.user_name)
+        if leave_res == resource.USER_INVALID_USER:
             message['data']['msg'] = 'user not exist'
             return USER_NOT_EXIST, json.dumps(message)
-        message['data']['msg'] = 'room not exist'
-        return ROOM_NOT_EXIST, json.dumps(message)
+        for item in self.ROOMS[room_name_str]:
+            if item['user'] == user_chat_user:
+                await asyncio.wait(
+                    [user['socket'].send(json.dumps(message)) for user in self.ROOMS[room_name_str]])
+                self.ROOMS[room_name_str].remove(item)
+                return MESSAGE_OK, ''
 
     async def counter(self, websocket, path):
         data = dict()

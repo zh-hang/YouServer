@@ -4,6 +4,7 @@ import websockets
 import threading
 import json
 import unittest
+import requests
 
 package = {
     "type": "",
@@ -40,6 +41,8 @@ async def get_join_return_message(user_name='', room_name='', msg=''):
     async with websockets.connect(uri) as websocket:
         await websocket.send(json.dumps(package))
         res_msg = await websocket.recv()
+        r = requests.get('http://127.0.0.1:5000/chatroom/list')
+        print(r.json())
         return json.loads(res_msg)
 
 
@@ -104,6 +107,7 @@ async def run_client(curr_package):
         curr_package['type'] = 'msg'
         while True and not break_timer:
             msg = await websocket.recv()
+            await sleep(1)
             await websocket.send(json.dumps(curr_package))
             yield msg
 
@@ -118,6 +122,10 @@ class TestChattingUnit(unittest.TestCase):
         await sleep(1)
         new_msg = await get_join_return_message('test', 'TEST')
         self.assertEqual(new_msg['data']['msg'], 'join')
+        r = requests.get('http://127.0.0.1:5000/chatroom/list')
+        for room in r.json()['room_list']:
+            if room['name'] == 'TEST':
+                self.assertEqual(0, room['population'])
 
     def test_join_with_right_data(self):
         loop = asyncio.events.new_event_loop()
