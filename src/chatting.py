@@ -10,7 +10,7 @@ import queue
 
 logging.basicConfig()
 
-ip_addr='0.0.0.0'
+ip_addr = '0.0.0.0'
 
 MESSAGE_OK = 0
 INVALID_MESSAGE = 1
@@ -24,27 +24,53 @@ ROOM_NOT_EXIST = 6
 def checkout_data(message):
     print(message)
     if 'type' not in message or 'data' not in message:
-        new_message = json.dumps({'type': 'error', 'data': {
-            'user_name': '', 'room_name': '', 'msg': 'invalid message'}})
+        new_message = json.dumps(message_generate(type_str='error', msg_str='invalid message'))
         return INVALID_MESSAGE, new_message
 
     if 'type' == '':
-        new_message = json.dumps({'type': 'error', 'data': {
-            'user_name': '', 'room_name': '', 'msg': 'illegal type'}})
+        new_message = json.dumps(message_generate(type_str='error', msg_str='illegal type'))
         return INVALID_MESSAGE, new_message
 
     data = message['data']
-    if 'user_name' not in data or 'room_name' not in data or 'msg' not in data:
-        new_message = json.dumps({'type': 'error', 'data': {
-            'user_name': '', 'room_name': '', 'msg': 'invalid data'}})
+    if 'user' not in data or 'room_name' not in data or 'msg' not in data:
+        new_message = json.dumps(message_generate(type_str='error', msg_str='invalid data'))
         return INVALID_DATA, new_message
 
-    if data['user_name'] == '' or data['room_name'] == '':
-        new_message = json.dumps({'type': 'error', 'data': {
-            'user_name': '', 'room_name': '', 'msg': 'illegal data'}})
+    if data['user']['user_name'] == '' or data['room_name'] == '' \
+            or data['user']['user_name'] is None or data['room_name'] is None:
+        new_message = json.dumps(message_generate(type_str='error', msg_str='illegal data'))
         return ILLEGAL_DATA, new_message
 
     return MESSAGE_OK, ''
+
+
+class ChatUser:
+    def __init__(self, user_chat_user, user_avatar_str):
+        self.user_name = user_chat_user
+        self.user_avatar = user_avatar_str
+
+    def get_dict(self):
+        return {'user_name': self.user_name, 'user_avatar': self.user_avatar}
+
+    def __str__(self):
+        return str({'user_name': self.user_name, 'user_avatar': self.user_avatar})
+
+    def __eq__(self, other):
+        if self.user_name == other.user_name:
+            return True
+        return False
+
+
+def message_generate(type_str='', user_chat_user=ChatUser('', ''), room_name_str='', msg_str=''):
+    return {
+        'type': type_str,
+        'data': {
+            'user': user_chat_user.get_dict(),
+            'room_name': room_name_str,
+            'msg': msg_str
+        }
+    }
+
 
 
 class ChatRoomServer:
@@ -60,32 +86,26 @@ class ChatRoomServer:
     async def notify_message(self):
         msg = self.message_event()
         if msg is not None and self.ROOMS.keys():
-            await asyncio.wait([user['socket'].send(json.dumps(msg)) for user in self.ROOMS[msg['data']['room_name']]])
+            await asyncio.wait(
+                [user['socket'].send(json.dumps(msg)) for user in self.ROOMS[msg['data']['room_name']]])
 
-    async def register(self, websocket, room_name_str, user_name_str):
-        if room_name_str is None or user_name_str is None:
-            message = json.dumps({'type': 'error', 'data': {
-                'user_name': user_name_str, 'room_name': room_name_str, 'msg': 'invalid data'}})
-            await asyncio.wait(websocket.send(message))
-
+    async def register(self, websocket, room_name_str, user_chat_user):
         if room_name_str in self.ROOMS.keys():
             self.ROOMS[room_name_str].append(
-                {'user': user_name_str, 'socket': websocket})
-            message = json.dumps({'type': 'user', 'data': {
-                'user_name': user_name_str, 'room_name': room_name_str, 'msg': 'join'}})
+                {'user': user_chat_user, 'socket': websocket})
+            message = json.dumps(message_generate(type_str='user', user_chat_user=user_chat_user, msg_str='join'))
             await asyncio.wait([user['socket'].send(message) for user in self.ROOMS[room_name_str]])
         else:
             self.ROOMS[room_name_str] = [
-                {'user': user_name_str, 'socket': websocket}]
-            message = json.dumps({'type': 'user', 'data': {
-                'user_name': user_name_str, 'room_name': room_name_str, 'msg': 'create'}})
+                {'user': user_chat_user, 'socket': websocket}]
+            message = json.dumps(message_generate(type_str='user', user_chat_user=user_chat_user, msg_str='create'))
             await asyncio.wait([user['socket'].send(message) for user in self.ROOMS[room_name_str]])
 
-    async def unregister(self, room_name_str, user_name_str):
-        message = {'type': 'user', 'data': {'user_name': user_name_str, 'room_name': room_name_str, 'msg': 'leave'}}
+    async def unregister(self, room_name_str, user_chat_user=None):
+        message = message_generate(type_str='user', user_chat_user=user_chat_user, msg_str='leave')
         if room_name_str in self.ROOMS.keys():
             for item in self.ROOMS[room_name_str]:
-                if item['user'] == user_name_str:
+                if item['user'] == user_chat_user:
                     self.ROOMS[room_name_str].remove(item)
                     if len(self.ROOMS[room_name_str]) != 0:
                         await asyncio.wait(
@@ -106,15 +126,16 @@ class ChatRoomServer:
                 if checkout_res[0] != MESSAGE_OK:
                     await websocket.send(checkout_res[1])
                     continue
-                is_join = True
+                user = ChatUser(data['data']['user']['user_name'], data['data']['user']['user_avatar'])
                 if data['type'] == 'join':
-                    await self.register(websocket, data['data']['room_name'], data['data']['user_name'])
+                    is_join = True
+                    await self.register(websocket, data['data']['room_name'], user)
                     continue
 
                 elif data['type'] == 'leave':
-                    leave_res = await self.unregister(data['data']['room_name'], data['data']['user_name'])
+                    leave_res = await self.unregister(data['data']['room_name'], user)
                     if leave_res[0] != MESSAGE_OK:
-                        await websocket.send(checkout_res[1])
+                        await websocket.send(leave_res[1])
                     continue
 
                 elif data['type'] == 'msg':
@@ -125,19 +146,17 @@ class ChatRoomServer:
                             await self.notify_message()
                             continue
                         else:
-                            message = json.dumps({'type': 'error', 'data': {
-                                'user_name': '', 'room_name': '', 'msg': 'null message'}})
+                            message = json.dumps(message_generate(type_str='error', msg_str='null message'))
                     else:
-                        message = json.dumps({'type': 'error', 'data': {
-                            'user_name': '', 'room_name': '', 'msg': 'invalid msg'}})
+                        message = json.dumps(message_generate(type_str='error', msg_str='invalid msg'))
                 else:
-                    message = json.dumps({'type': 'error', 'data': {
-                        'user_name': '', 'room_name': '', 'msg': 'illegal type'}})
+                    message = json.dumps(message_generate(type_str='error', msg_str='illegal type'))
                 await websocket.send(message)
 
         finally:
             if is_join:
-                await self.unregister(data['data']['room_name'], data['data']['user_name'])
+                await self.unregister(data['data']['room_name'],
+                                      ChatUser(data['data']['user']['user_name'], data['data']['user']['user_avatar']))
 
     def run(self):
         global ip_addr

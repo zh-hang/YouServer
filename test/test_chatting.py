@@ -8,9 +8,12 @@ import unittest
 package = {
     "type": "",
     "data": {
-        "user_name": "",
+        "user": {
+            "user_name": "",
+            "user_avatar": ""
+        },
         "room_name": "",
-        "msg": "",
+        "msg": ""
     }
 }
 
@@ -20,7 +23,7 @@ uri = "ws://localhost:2333"
 async def test_join():
     async with websockets.connect(uri) as websocket:
         package['type'] = 'join'
-        package['data']['user_name'] = 'test'
+        package['data']['user']['user_name'] = 'test'
         package['data']['room_name'] = 'YOU'
         await websocket.send(json.dumps(package))
         res_msg = await websocket.recv()
@@ -31,7 +34,7 @@ async def test_join():
 
 async def get_join_return_message(user_name='', room_name='', msg=''):
     package['type'] = 'join'
-    package['data']['user_name'] = user_name
+    package['data']['user']['user_name'] = user_name
     package['data']['room_name'] = room_name
     package['data']['msg'] = msg
     async with websockets.connect(uri) as websocket:
@@ -48,7 +51,7 @@ async def get_check_return_message(data_type=None, user_name=None, room_name=Non
     if user_name is None and room_name is None:
         package.pop('data')
     else:
-        package['data']['user_name'] = user_name
+        package['data']['user']['user_name'] = user_name
         package['data']['room_name'] = room_name
         package['data']['msg'] = msg
     async with websockets.connect(uri) as websocket:
@@ -58,7 +61,7 @@ async def get_check_return_message(data_type=None, user_name=None, room_name=Non
 
 
 async def get_leave_return_message(user_name='', room_name='', msg=''):
-    package['data']['user_name'] = user_name
+    package['data']['user']['user_name'] = user_name
     package['data']['room_name'] = room_name
     package['data']['msg'] = msg
     async with websockets.connect(uri) as websocket:
@@ -66,6 +69,7 @@ async def get_leave_return_message(user_name='', room_name='', msg=''):
         await websocket.send(json.dumps(package))
         await websocket.recv()
         package['type'] = 'leave'
+        await sleep(0.5)
         await websocket.send(json.dumps(package))
         res_msg = await websocket.recv()
         return json.loads(res_msg)
@@ -76,7 +80,7 @@ def set_package(data_type=None, user_name=None, room_name=None, msg=None):
     if data_type is not None:
         temp_package['type'] = data_type
     if user_name is not None:
-        temp_package['data']['user_name'] = user_name
+        temp_package['data']['user']['user_name'] = user_name
     if room_name is not None:
         temp_package['data']['room_name'] = room_name
     if msg is not None:
@@ -106,7 +110,7 @@ async def run_client(curr_package):
 
 class TestChattingUnit(unittest.TestCase):
     def test_test_case_available(self):
-        self.assertFalse('test run success')
+        self.assertTrue('test run success')
 
     async def join_with_right_data(self):
         new_msg = await get_join_return_message('test', 'TEST')
@@ -143,7 +147,7 @@ class TestChattingUnit(unittest.TestCase):
 
     async def leave_with_right_data(self):
         new_msg = await get_leave_return_message('test', 'TEST')
-        self.assertEqual(new_msg['data']['msg'], 'join')
+        self.assertEqual(new_msg['data']['msg'], 'leave')
 
     def test_leave_with_right_data(self):
         loop = asyncio.events.new_event_loop()
@@ -159,7 +163,7 @@ class TestChattingUnit(unittest.TestCase):
             while not break_timer:
                 await websocket.send(json.dumps(curr_package))
                 new_msg = await websocket.recv()
-                self.assertIn(json.loads(new_msg)['data']['msg'], user_name + 'join' + 'leave'+'create')
+                self.assertIn(json.loads(new_msg)['data']['msg'], user_name + 'join' + 'leave' + 'create')
                 await sleep(0.5)
 
     async def recv_msg(self, user_name, send_user_name):
@@ -168,7 +172,7 @@ class TestChattingUnit(unittest.TestCase):
             await websocket.send(json.dumps(curr_package))
             while not break_timer:
                 new_msg = await websocket.recv()
-                self.assertIn(json.loads(new_msg)['data']['msg'], send_user_name + 'join' + 'leave'+'create')
+                self.assertIn(json.loads(new_msg)['data']['msg'], send_user_name + 'join' + 'leave' + 'create')
 
     def run_recv_msg(self):
         new_loop = asyncio.new_event_loop()

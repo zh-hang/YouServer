@@ -28,12 +28,12 @@ http://124.70.97.253:5000/auth/login
 
 ```json
 {
-    'res':'login successfully',
-    'data':{
-        'user_tel':0,
-		'user_name':'admin',
-        'user_password':'123456',
-        'user_avatar_url':''
+    "res":"login successfully",
+    "data":{
+        "user_tel":0,
+		"user_name":"admin",
+        "user_password":"123456",
+        "user_avatar_url":""
     }
 }
 ```
@@ -62,7 +62,7 @@ http://124.70.97.253:5000/auth/register
 
 ```josn
 {
-	'res':'register successfully'
+	""res"":""register successfully""
 }
 ```
 
@@ -184,7 +184,7 @@ ws://124.70.97.253:2333
 | 字段        | 内容     | 备注 |
 | ----------- | -------- | ---- |
 | user_name   | 用户名称 |      |
-| user_avator | 用户头像 |      |
+| user_avatar | 用户头像 |      |
 
 #### 示例
 
@@ -193,11 +193,11 @@ ws://124.70.97.253:2333
     "type":"",
     "data":{
         "user":{
-            "uesr_name":"",
-            "user_avator":""
+            "user_name":"",
+            "user_avatar":""
         },
         "room_name":"",
-        "msg":"",
+        "msg":""
     }
 }
 ```
@@ -221,7 +221,10 @@ ws://124.70.97.253:2333
 {
     "type":"join",
     "data":{
-        "user_name":"test",
+        "user":{
+            "user_name":"test",
+            "user_avatar":""
+        },
         "room_name":"TEST",
         "msg":""
     }
@@ -232,11 +235,14 @@ ws://124.70.97.253:2333
 
 ```json
 {
-    'type': 'user', 
-    'data': {
-        'user_name': 'test',
-        'room_name': 'TEST',
-        'msg': 'create'
+    "type": "user", 
+    "data": {
+        "user":{
+            "user_name":"test",
+            "user_avatar":""
+        },
+        "room_name": "TEST",
+        "msg": "create"
     }
 }
 ```
@@ -249,7 +255,10 @@ ws://124.70.97.253:2333
 {
     "type":"join",
     "data":{
-        "user_name":"test",
+        "user":{
+            "user_name":"test",
+            "user_avatar":""
+        },
         "room_name":"TEST",
         "msg":""
     }
@@ -260,11 +269,14 @@ ws://124.70.97.253:2333
 
 ```json
 {
-    'type': 'user', 
-    'data': {
-        'user_name': 'test',
-        'room_name': 'TEST',
-        'msg': 'join'
+    "type": "user", 
+    "data": {
+        "user":{
+            "user_name":"test",
+            "user_avatar":""
+        },
+        "room_name": "TEST",
+        "msg": "join"
     }
 }
 ```
@@ -277,7 +289,10 @@ ws://124.70.97.253:2333
 {
     "type":"leave",
     "data":{
-        "user_name":"test",
+        "user":{
+            "user_name":"test",
+            "user_avatar":""
+        },
         "room_name":"TEST",
         "msg":""
     }
@@ -288,11 +303,14 @@ ws://124.70.97.253:2333
 
 ```json
 {
-    'type': 'user', 
-    'data': {
-        'user_name': 'test',
-        'room_name': 'TEST',
-        'msg': 'leave'
+    "type": "user", 
+    "data": {
+        "user":{
+            "user_name":"test",
+            "user_avatar":""
+        },
+        "room_name": "TEST",
+        "msg": "leave"
     }
 }
 ```
@@ -305,7 +323,10 @@ ws://124.70.97.253:2333
 {
     "type":"msg",
     "data":{
-        "user_name":"test",
+        "user":{
+            "user_name":"test",
+            "user_avatar":""
+        },
         "room_name":"TEST",
         "msg":"hello"
     }
@@ -318,7 +339,10 @@ ws://124.70.97.253:2333
 {
     "type":"msg",
     "data":{
-        "user_name":"test",
+        "user":{
+            "user_name":"test",
+            "user_avatar":""
+        },
         "room_name":"TEST",
         "msg":"hello"
     }
