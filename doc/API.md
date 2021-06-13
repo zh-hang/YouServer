@@ -164,34 +164,6 @@ http://124.70.97.253:5000/chatroom/create
 
 ### 进入和退出聊天室
 
-进入和退出聊天室的时候需要提前向服务器发送一次请求
-
-#### API
-
-http://124.70.97.253:5000/chatroom/room
-
-#### 参数(全都不能为空)
-
-| 参数名    | 内容       | 备注                             |
-| --------- | ---------- | -------------------------------- |
-| room_name | 聊天室名称 |                                  |
-| user_name | 用户名称   |                                  |
-| status    | 进出标识   | 0：退出聊天室<br />1：进入聊天室 |
-
-#### 返回值JSON
-
-| 字段 | 内容   | 备注                                                         |
-| ---- | ------ | ------------------------------------------------------------ |
-| res  | 返回值 | join chatroom：进入聊天室<br />leave chatroom：离开聊天室<br />invalid room：聊天室不存在<br />invalid status：无法识别的状态<br />user not exist：聊天室内无该用户<br />full room：房间满员<br />missing parameters：参数缺失 |
-
-#### 示例
-
-```json
-{
-    "res":"full room"
-}
-```
-
 ### API
 
 ws://124.70.97.253:2333
@@ -242,6 +214,9 @@ ws://124.70.97.253:2333
 | invalid data    | data缺失字段                |
 | illegal data    | user_name或roo_name字段为空 |
 | null message    | msg字段为空                 |
+| room full       | 房间满员                    |
+| room not exist  | 房间不存在                  |
+| user not exist  | 房间无该用户                |
 
 ### 请求
 
@@ -407,8 +382,6 @@ ws://124.70.97.253:2333
 
 ### 进入聊天室
 
-1. 调用API `chatroom/room`设置status为1
-2. 返回join chatroom则表示允许进入聊天室
 3. 使用websockets发送type为join类型的包进入聊天室
 4. 返回msg为join则进入成功
 
@@ -416,5 +389,3 @@ ws://124.70.97.253:2333
 
 1. 使用websockets发送type为leave类型的包进入聊天室
 2. 返回msg为leave则进入成功
-3. 调用API `chatroom/room`设置status为0
-4. 返回leave chatroom则表示资源释放

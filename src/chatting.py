@@ -86,6 +86,8 @@ class ChatRoomServer:
 
     async def notify_message(self):
         msg = self.message_event()
+        while msg['data']['room_name'] not in self.ROOMS.keys():
+            msg = self.message_event()
         if msg is not None and self.ROOMS.keys():
             await asyncio.wait(
                 [user['socket'].send(json.dumps(msg)) for user in self.ROOMS[msg['data']['room_name']]])
