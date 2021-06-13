@@ -104,14 +104,14 @@ class ChatRoomServer:
         message = message_generate(type_str='user', user_chat_user=user_chat_user, msg_str='leave')
         if room_name_str in self.ROOMS.keys():
             for item in self.ROOMS[room_name_str]:
-                if item['user'] == user_chat_user:
-                    if len(self.ROOMS[room_name_str]) != 0:
+                if len(self.ROOMS[room_name_str]) != 0:
+                    if item['user'] == user_chat_user:
                         await asyncio.wait(
                             [user['socket'].send(json.dumps(message)) for user in self.ROOMS[room_name_str]])
-                    self.ROOMS[room_name_str].remove(item)
-                    return MESSAGE_OK, ''
-                message['data']['msg'] = 'user not exist'
-                return USER_NOT_EXIST, json.dumps(message)
+                        self.ROOMS[room_name_str].remove(item)
+                        return MESSAGE_OK, ''
+            message['data']['msg'] = 'user not exist'
+            return USER_NOT_EXIST, json.dumps(message)
         message['data']['msg'] = 'room not exist'
         return ROOM_NOT_EXIST, json.dumps(message)
 
