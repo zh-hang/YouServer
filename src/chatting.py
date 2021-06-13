@@ -72,7 +72,6 @@ def message_generate(type_str='', user_chat_user=ChatUser('', ''), room_name_str
     }
 
 
-
 class ChatRoomServer:
     def __init__(self):
         self.MSG = queue.Queue()
@@ -106,10 +105,10 @@ class ChatRoomServer:
         if room_name_str in self.ROOMS.keys():
             for item in self.ROOMS[room_name_str]:
                 if item['user'] == user_chat_user:
-                    self.ROOMS[room_name_str].remove(item)
                     if len(self.ROOMS[room_name_str]) != 0:
                         await asyncio.wait(
                             [user['socket'].send(json.dumps(message)) for user in self.ROOMS[room_name_str]])
+                    self.ROOMS[room_name_str].remove(item)
                     return MESSAGE_OK, ''
                 message['data']['msg'] = 'user not exist'
                 return USER_NOT_EXIST, json.dumps(message)
