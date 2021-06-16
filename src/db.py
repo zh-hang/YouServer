@@ -59,6 +59,6 @@ def insert_user(user_tel_int, user_name_str, user_password_str):
     ) as db:
         conn = db.cursor()
         conn.execute(
-            '''INSERT INTO user (user_tel,user_name,user_password,user_avatar_url) VALUES (?,?,?)''',
+            '''INSERT INTO user (user_tel,user_name,user_password,user_avatar_url) VALUES (?,?,?,?)''',
             (user_tel_int, user_name_str, user_password_str,'default')
         )
